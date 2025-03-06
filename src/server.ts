@@ -20,6 +20,7 @@ import { AsyncLocalStorage } from "node:async_hooks";
 
 // Environment variables type definition
 export type Env = {
+  HYPERDRIVE: Hyperdrive;
   OPENAI_API_KEY: string;
   Chat: AgentNamespace<Chat>;
 };
@@ -31,10 +32,15 @@ export const agentContext = new AsyncLocalStorage<Chat>();
  */
 export class Chat extends AIChatAgent<Env> {
   /**
+   * Getter method to access Env from tools
+   */
+  getEnv(): Env {
+    return this.env;
+  }
+  /**
    * Handles incoming chat messages and manages the response stream
    * @param onFinish - Callback function executed when streaming completes
    */
-
   // biome-ignore lint/complexity/noBannedTypes: <explanation>
   async onChatMessage(onFinish: StreamTextOnFinishCallback<{}>) {
     // Create a streaming response that handles both text and tool outputs
@@ -64,9 +70,7 @@ export class Chat extends AIChatAgent<Env> {
           // Stream the AI response using GPT-4
           const result = streamText({
             model: openai("gpt-4o-2024-11-20"),
-            system: `
-              You are a helpful assistant that can do various tasks. If the user asks, then you can also schedule tasks to be executed later. The input may have a date/time/cron pattern to be input as an object into a scheduler The time is now: ${new Date().toISOString()}.
-              `,
+            system: "You are a helpful assistant",
             messages: processedMessages,
             tools,
             onFinish,
@@ -80,16 +84,6 @@ export class Chat extends AIChatAgent<Env> {
 
       return dataStreamResponse;
     });
-  }
-  async executeTask(description: string, task: Schedule<string>) {
-    await this.saveMessages([
-      ...this.messages,
-      {
-        id: generateId(),
-        role: "user",
-        content: `scheduled message: ${description}`,
-      },
-    ]);
   }
 }
 

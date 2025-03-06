@@ -7,6 +7,7 @@
   "scripts": {
     "start": "vite dev",
     "deploy": "vite build && wrangler deploy",
+    "dev": "vite build && wrangler dev",
     "test": "vitest",
     "format": "prettier --write .",
     "check": "prettier . --check && biome lint && tsc"
@@ -47,6 +48,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.477.0",
+    "pg": "^8.13.3",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "tailwind-merge": "^3.0.2",
